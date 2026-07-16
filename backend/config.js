@@ -1,6 +1,8 @@
-// Veritabanı Konfigürasyonu
-require('dotenv').config();
+-- ==================== DATABASE CONNECTION ====================
 const { Pool } = require('pg');
+const dotenv = require('dotenv');
+
+dotenv.config();
 
 const pool = new Pool({
     user: process.env.DB_USER || 'postgres',
@@ -11,16 +13,15 @@ const pool = new Pool({
 });
 
 pool.on('error', (err) => {
-    console.error('Veritabanı bağlantı hatası:', err);
+    console.error('Unexpected error on idle client', err);
 });
 
-// Bağlantı testi
-pool.query('SELECT NOW()', (err, res) => {
-    if (err) {
-        console.error('❌ Veritabanı bağlantısı başarısız:', err.message);
-    } else {
-        console.log('✅ Veritabanı bağlantısı başarılı');
-    }
+pool.on('connect', () => {
+    console.log('✅ Veritabanına bağlandı');
+});
+
+pool.on('disconnect', () => {
+    console.log('❌ Veritabanından bağlantı kesildi');
 });
 
 module.exports = pool;
